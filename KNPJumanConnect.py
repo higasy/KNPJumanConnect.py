@@ -1,6 +1,16 @@
-#coding: utf-8
+#!/usr/bin/python3
+
 import socket
 import sys
+
+
+def _encode(data:str, encoding='utf-8'):
+    return data.encode(encoding)
+
+
+def _decode(data:bytes, encoding='utf-8'):
+    return data.decode(encoding)
+
 
 class KNPJumanConnect():
   def __init__(self):
@@ -18,9 +28,9 @@ class KNPJumanConnect():
 
     sys.stderr.write("Jumanと接続しました\n")
     input_a = ["RUN ", option, "\n"]
-    input_mode = "".join(input_a)
+    input_mode = _encode("".join(input_a))
     self.juman_s.sendall(input_mode)
-    sys.stderr.write(self.juman_s.recv(1024))
+    sys.stderr.write(_decode(self.juman_s.recv(1024)))
     if option=="":
       sys.stderr.write("JUMAN running on BASIC MODE.....\n")
     else:
@@ -29,8 +39,8 @@ class KNPJumanConnect():
 
   def post_juman(self, context):
     juman_result = ""
-    self.juman_s.sendall(context+"\n")
-    juman_result = self.juman_s.recv(4096)
+    self.juman_s.sendall(_encode(context+"\n"))
+    juman_result = _decode(self.juman_s.recv(4096))
     return juman_result
 
   def juman_close(self):
@@ -46,10 +56,10 @@ class KNPJumanConnect():
         return False
     sys.stderr.write("KNPと接続しました\n")
     input_a = ["RUN ", option, "\n"]
-    input_mode = "".join(input_a)
+    input_mode = _encode("".join(input_a))
     self.knp_s.sendall(input_mode)
-    sys.stderr.write(self.knp_s.recv(1024))
-    sys.stderr.write(self.knp_s.recv(1024))
+    sys.stderr.write(_decode(self.knp_s.recv(1024)))
+    sys.stderr.write(_decode(self.knp_s.recv(1024)))
     if option == "":
       sys.stderr.write("KNP running on BASIC MODE.....\n")
     else:
@@ -59,13 +69,13 @@ class KNPJumanConnect():
   def post_knp(self, context):
     knp_result = ""
     knp_result_list = []
-    self.knp_s.sendall(self.post_juman(context))
+    self.knp_s.sendall(_encode(self.post_juman(context)))
     while 1:
       f = self.knp_s.recv(1024)
       knp_result_list.append(f)
-      if f.find("EOS\n")!=-1:
+      if f.find(_encode("EOS\n"))!=-1:
         break
-    knp_result = "".join(knp_result_list)
+    knp_result = _decode(b"".join(knp_result_list))
     return knp_result
 
   def knp_close(self):
